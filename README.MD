@@ -7,7 +7,13 @@ py -3 -m venv .venv
 
 .venv\Scripts\activate
 
+pip install elasticsearch==7.15.2
+
+pip install scikit-learn
+
 pip install Flask
+
+python -m flask run
 ```
 
 # Frontend
