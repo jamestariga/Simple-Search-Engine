@@ -1,0 +1,32 @@
+export default [
+  {
+    id: 1,
+    name: 'John Doe',
+    email: '',
+    phone: '',
+    username: 'johndoe',
+    gender: 'Male',
+    country: 'USA',
+    language: 'en',
+  },
+  {
+    id: 2,
+    name: 'Jane Doe',
+    email: '',
+    phone: '',
+    username: 'janedoe',
+    gender: 'Female',
+    country: 'CAN',
+    language: 'en',
+  },
+  {
+    id: 3,
+    name: 'John Smith',
+    email: '',
+    phone: '',
+    username: 'johnsmith',
+    gender: 'Male',
+    country: 'CN',
+    language: 'zh',
+  },
+]
