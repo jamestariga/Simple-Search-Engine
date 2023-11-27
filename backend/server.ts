@@ -6,7 +6,7 @@ import { Client } from '@elastic/enterprise-search'
 const app = express()
 app.use(cors())
 
-const port = process.env.PORT || 5000
+const port = process.env.PORT ?? 5000
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -16,7 +16,7 @@ app.get('/', async (req, res) => {
 })
 
 app.post('/api/user/preferences', async (req, res) => {
-  const client = await new Client({
+  const client = new Client({
     url: 'https://info4105.ent.us-central1.gcp.cloud.es.io/',
     auth: {
       token: 'private-pya69tudggevgncorqtwkrvv',
@@ -25,12 +25,13 @@ app.post('/api/user/preferences', async (req, res) => {
 
   const body = await client.app.getTopClicksAnalytics({
     engine_name: 'movies-engine',
+    // engine_name: 'movies-engine-2010s', // For testing
     body: {
       filters: {
-        tag: req.body.user,
+        tag: req.body.user.username, // TODO change to ID
       },
       page: {
-        size: 10,
+        size: 5,
       },
     },
   })
