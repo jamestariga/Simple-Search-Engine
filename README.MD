@@ -1,19 +1,11 @@
 # Backend
 
-Run the commands in order to create a virtual environment and install Flask
+Run the commands in order to setup the environment and run the application
 
 ```
-py -3 -m venv .venv
+npm install
 
-.venv\Scripts\activate
-
-pip install elasticsearch==7.15.2
-
-pip install scikit-learn
-
-pip install Flask
-
-python -m flask run
+npm run dev
 ```
 
 # Frontend

@@ -1,16 +1,17 @@
 export default [
   {
-    id: 1,
+    id: '1',
     name: 'John Doe',
     email: '',
     phone: '',
-    username: 'johndoe',
+    username: 'johnDoe',
     gender: 'Male',
     country: 'USA',
     language: 'en',
+    favorites: ['Barbie: A Fashion Fairytale', 'Comedy'],
   },
   {
-    id: 2,
+    id: '2',
     name: 'Jane Doe',
     email: '',
     phone: '',
@@ -18,9 +19,10 @@ export default [
     gender: 'Female',
     country: 'CAN',
     language: 'en',
+    favorites: ['Spy'],
   },
   {
-    id: 3,
+    id: '3',
     name: 'John Smith',
     email: '',
     phone: '',
@@ -28,5 +30,6 @@ export default [
     gender: 'Male',
     country: 'CN',
     language: 'zh',
+    favorites: ['Action'],
   },
 ]
