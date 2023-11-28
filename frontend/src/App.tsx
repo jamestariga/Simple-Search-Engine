@@ -53,12 +53,14 @@ const defaultConfig: SearchDriverOptions = {
       genres: { raw: {} },
       year: { raw: {} },
       extract: { raw: {} },
+      cast: { raw: {} },
     },
     search_fields: {
       title: {},
       genres: {},
       extract: {},
       id: {},
+      cast: {},
     },
     disjunctiveFacets: [''],
     facets: {},
@@ -85,22 +87,43 @@ const fetchUserPreferences = async (currUser: User) => {
 const App = () => {
   const [currUser, setCurrUser] = useState<User>()
   const [userPreferences, setUserPreferences] = useState<{
-    favorites: { document_id: string; clicks: number; title: string }[]
+    favorites: {
+      document_id: string
+      clicks: number
+      title: string
+      cast: string[]
+      genres: string[]
+    }[]
   }>()
   const [config, setConfig] = useState<
     SearchDriverOptions & { searchQuery?: { boosts?: BoostsQuery } }
   >(defaultConfig)
-  const [docTitle, setDocTitle] = useState<string>()
 
   useEffect(() => {
     const titleBoosts: Boosts = []
+    const castsBoosts: Boosts = []
+    const genresBoosts: Boosts = []
     if (currUser && userPreferences) {
       for (const fav of userPreferences.favorites) {
         titleBoosts.push({
           type: 'value',
           value: [fav.title],
           operation: 'multiply',
-          factor: fav.clicks * 2,
+          factor: fav.clicks * 10,
+        })
+
+        castsBoosts.push({
+          type: 'value',
+          value: [...fav.cast],
+          operation: 'multiply',
+          factor: fav.clicks * 10,
+        })
+
+        genresBoosts.push({
+          type: 'value',
+          value: [...fav.genres],
+          operation: 'multiply',
+          factor: fav.clicks * 10,
         })
       }
 
@@ -110,6 +133,8 @@ const App = () => {
           ...prevState.searchQuery,
           boosts: {
             title: titleBoosts,
+            cast: castsBoosts,
+            genres: genresBoosts,
           },
           analytics: {
             tags: [currUser.username],
@@ -138,13 +163,6 @@ const App = () => {
 
     if (selectedUser) setCurrUser(selectedUser)
     else setCurrUser(undefined)
-  }
-
-  const handleLikeButtonClick = (result: any, onClickLink: any) => {
-    setDocTitle(result?.title?.raw)
-    setTimeout(() => {
-      onClickLink()
-    }, 2000)
   }
 
   return (
@@ -181,18 +199,20 @@ const App = () => {
                     bodyContent={
                       <Results
                         shouldTrackClickThrough
-                        clickThroughTags={[
-                          currUser?.id ?? 'no-id',
-                          docTitle ?? '',
-                        ]}
+                        clickThroughTags={[currUser?.id ?? 'no-id']}
                         resultView={({ result, onClickLink }) => {
                           return (
                             <div className="card p-4 shadow-xl">
                               <div>
-                                <h4 className="font-bold text-slate-800 text-xl">
+                                <h4 className="font-bold text-slate-900 text-xl">
                                   {result?.title?.raw}
                                 </h4>
                                 <div>{result?.extract?.raw}</div>
+                              </div>
+                              <div>
+                                {result?.cast?.raw.length ? (
+                                  <div>Cast: {result.cast.raw.join(', ')}</div>
+                                ) : null}
                               </div>
                               <div>
                                 {result?.genres?.raw.map((genre: string) => (
@@ -201,12 +221,7 @@ const App = () => {
                               </div>
                               <div>Release Year: {result?.year?.raw}</div>
                               <div>Score: {result?._meta.score}</div>
-                              <button
-                                className="btn"
-                                onClick={() =>
-                                  handleLikeButtonClick(result, onClickLink)
-                                }
-                              >
+                              <button className="btn" onClick={onClickLink}>
                                 Like
                               </button>
                             </div>

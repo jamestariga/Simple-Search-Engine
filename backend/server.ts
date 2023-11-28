@@ -50,17 +50,19 @@ app.post('/api/user/preferences', async (req, res) => {
   console.log(documentsResponse)
 
   const formattedResponse = response.results.map((res) => {
-    const docTitle = documentsResponse.find(
+    const foundDocument = documentsResponse.find(
       (doc) => doc?.id === res.document_id
     )
 
-    if (!docTitle) {
+    if (!foundDocument) {
       throw new Error('No document found')
     }
 
     return {
       ...res,
-      title: docTitle.title,
+      title: foundDocument.title,
+      cast: foundDocument.cast,
+      genres: foundDocument.genres,
     }
   })
 
