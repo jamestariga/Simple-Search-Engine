@@ -85,7 +85,7 @@ const fetchUserPreferences = async (currUser: User) => {
 }
 
 const App = () => {
-  const [currUser, setCurrUser] = useState<User>()
+  const [currUser, setCurrUser] = useState<User>(users[0])
   const [userPreferences, setUserPreferences] = useState<{
     favorites: {
       document_id: string
@@ -126,25 +126,33 @@ const App = () => {
           factor: fav.clicks * 10,
         })
       }
-
-      setConfig((prevState) => ({
-        ...prevState,
-        searchQuery: {
-          ...prevState.searchQuery,
-          boosts: {
-            title: titleBoosts,
-            cast: castsBoosts,
-            genres: genresBoosts,
+      if (currUser.username !== 'no-id') {
+        setConfig((prevState) => ({
+          ...prevState,
+          searchQuery: {
+            ...prevState.searchQuery,
+            boosts: {
+              title: titleBoosts,
+              cast: castsBoosts,
+              genres: genresBoosts,
+            },
+            analytics: {
+              tags: [currUser.username],
+            },
           },
-          analytics: {
-            tags: [currUser.username],
-          },
-        },
-      }))
+        }))
+      } else {
+        setConfig(defaultConfig)
+      }
     }
   }, [userPreferences, currUser])
 
   useEffect(() => {
+    console.log('config', config)
+  }, [config])
+
+  useEffect(() => {
+    console.log('fired', currUser)
     if (currUser) {
       fetchUserPreferences(currUser)
         .then((res) => {
@@ -162,7 +170,6 @@ const App = () => {
     const selectedUser = users.find((user) => user.id === e.target.value)
 
     if (selectedUser) setCurrUser(selectedUser)
-    else setCurrUser(undefined)
   }
 
   return (
@@ -172,10 +179,9 @@ const App = () => {
           className="w-full max-w-xs bg-slate-50"
           name="users"
           id="users"
-          value={currUser?.id}
+          value={currUser.id}
           onChange={handleInputChange}
         >
-          <option value={undefined}>No user</option>
           {users.map((user) => (
             <option key={user.id} value={user.id}>
               {user.name}

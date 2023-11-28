@@ -1,5 +1,13 @@
 export default [
   {
+    id: 'no-id',
+    name: 'No user',
+    username: 'no-id',
+    gender: 'N/A',
+    country: 'N/A',
+    favorites: ['N/A'],
+  },
+  {
     id: '1',
     name: 'John Doe',
     username: 'johnDoe',
@@ -23,4 +31,4 @@ export default [
     country: 'CN',
     favorites: [],
   },
-];
+]
