@@ -1,5 +1,5 @@
 import AppSearchAPIConnector from '@elastic/search-ui-app-search-connector'
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   ErrorBoundary,
   SearchProvider,
@@ -90,8 +90,7 @@ const App = () => {
   const [config, setConfig] = useState<
     SearchDriverOptions & { searchQuery?: { boosts?: BoostsQuery } }
   >(defaultConfig)
-
-  const docTitleRef = useRef<string>()
+  const [docTitle, setDocTitle] = useState<string>()
 
   useEffect(() => {
     const titleBoosts: Boosts = []
@@ -141,6 +140,13 @@ const App = () => {
     else setCurrUser(undefined)
   }
 
+  const handleLikeButtonClick = (result: any, onClickLink: any) => {
+    setDocTitle(result?.title?.raw)
+    setTimeout(() => {
+      onClickLink()
+    }, 2000)
+  }
+
   return (
     <div className="bg-neutral">
       <div className="flex w-full component-preview p-4 items-center justify-center gap-2">
@@ -177,7 +183,7 @@ const App = () => {
                         shouldTrackClickThrough
                         clickThroughTags={[
                           currUser?.id ?? 'no-id',
-                          docTitleRef?.current ?? '',
+                          docTitle ?? '',
                         ]}
                         resultView={({ result, onClickLink }) => {
                           return (
@@ -197,16 +203,9 @@ const App = () => {
                               <div>Score: {result?._meta.score}</div>
                               <button
                                 className="btn"
-                                id={docTitleRef.current}
-                                onClick={() => {
-                                  docTitleRef.current = result?.title?.raw
-                                  setTimeout(
-                                    () =>
-                                      console.log('delay for race condition'),
-                                    1000
-                                  )
-                                  onClickLink()
-                                }}
+                                onClick={() =>
+                                  handleLikeButtonClick(result, onClickLink)
+                                }
                               >
                                 Like
                               </button>
