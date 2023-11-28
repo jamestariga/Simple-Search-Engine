@@ -22,7 +22,7 @@ const connector = new AppSearchAPIConnector({
   endpointBase: 'https://info4105.ent.us-central1.gcp.cloud.es.io/',
 })
 
-const API_ADDRESS = 'http://localhost:5000/api'
+const API_ADDRESS = 'http://localhost:9999/api'
 
 type User = {
   id: string
@@ -85,7 +85,7 @@ const fetchUserPreferences = async (currUser: User) => {
 const App = () => {
   const [currUser, setCurrUser] = useState<User>()
   const [userPreferences, setUserPreferences] = useState<{
-    favorites: { document_id: string; clicks: number }[]
+    favorites: { document_id: string; clicks: number; title: string }[]
   }>()
   const [config, setConfig] = useState<
     SearchDriverOptions & { searchQuery?: { boosts?: BoostsQuery } }
@@ -99,9 +99,9 @@ const App = () => {
       for (const fav of userPreferences.favorites) {
         titleBoosts.push({
           type: 'value',
-          value: [fav.document_id], // TODO change to document title
+          value: [fav.title],
           operation: 'multiply',
-          factor: fav.clicks,
+          factor: fav.clicks * 2,
         })
       }
 
@@ -110,19 +110,10 @@ const App = () => {
         searchQuery: {
           ...prevState.searchQuery,
           boosts: {
-            // id: idBoosts,
-            // ! TEMP - change to title boosts when analytics works again
-            title: [
-              {
-                type: 'value',
-                value: ["Mary and the Witch's Flower"],
-                operation: 'multiply',
-                factor: 1,
-              },
-            ],
+            title: titleBoosts,
           },
           analytics: {
-            tags: [currUser.username], // TODO change to ID
+            tags: [currUser.username],
           },
         },
       }))
@@ -209,6 +200,11 @@ const App = () => {
                                 id={docTitleRef.current}
                                 onClick={() => {
                                   docTitleRef.current = result?.title?.raw
+                                  setTimeout(
+                                    () =>
+                                      console.log('delay for race condition'),
+                                    1000
+                                  )
                                   onClickLink()
                                 }}
                               >

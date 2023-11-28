@@ -6,7 +6,7 @@ import { Client } from '@elastic/enterprise-search'
 const app = express()
 app.use(cors())
 
-const port = process.env.PORT ?? 5000
+const port = process.env.PORT ?? 9999
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -23,12 +23,12 @@ app.post('/api/user/preferences', async (req, res) => {
     },
   })
 
-  const body = await client.app.getTopClicksAnalytics({
+  const response = await client.app.getTopClicksAnalytics({
     engine_name: 'movies-engine',
     // engine_name: 'movies-engine-2010s', // For testing
     body: {
       filters: {
-        tag: req.body.user.username, // TODO change to ID
+        tag: req.body.user.username,
       },
       page: {
         size: 5,
@@ -36,7 +36,35 @@ app.post('/api/user/preferences', async (req, res) => {
     },
   })
 
-  res.status(200).json({ body })
+  const docIds = response.results.map((res) => res.document_id)
+
+  const documentsResponse = await client.app.getDocuments({
+    engine_name: 'movies-engine',
+    documentIds: docIds,
+  })
+
+  if (!documentsResponse) {
+    throw new Error('No documents found')
+  }
+
+  console.log(documentsResponse)
+
+  const formattedResponse = response.results.map((res) => {
+    const docTitle = documentsResponse.find(
+      (doc) => doc?.id === res.document_id
+    )
+
+    if (!docTitle) {
+      throw new Error('No document found')
+    }
+
+    return {
+      ...res,
+      title: docTitle.title,
+    }
+  })
+
+  res.status(200).json({ body: { results: formattedResponse } })
 })
 
 app.listen(port, () => console.log(`Listening on port ${port}`))
