@@ -14,6 +14,7 @@ import { Layout } from '@elastic/react-search-ui-views'
 import '@elastic/react-search-ui-views/lib/styles/styles.css'
 import { SearchDriverOptions } from '@elastic/search-ui'
 import users from './components/data/users'
+import Recommendation from './components/Recommendation/Recommendation'
 
 const connector = new AppSearchAPIConnector({
   searchKey: 'search-xkqbex2iqsrpsgg53ydfm16r',
@@ -30,7 +31,7 @@ type User = {
   username: string
   gender: string
   country: string
-  favorites: string[]
+  favorites: string
 }
 
 type Boosts = {
@@ -173,83 +174,97 @@ const App = () => {
   }
 
   return (
-    <div className="bg-neutral">
-      <div className="flex w-full component-preview p-4 items-center justify-center gap-2">
-        <select
-          className="w-full max-w-xs bg-slate-50"
-          name="users"
-          id="users"
-          value={currUser.id}
-          onChange={handleInputChange}
-        >
-          {users.map((user) => (
-            <option key={user.id} value={user.id}>
-              {user.name}
-            </option>
-          ))}
-        </select>
+    <>
+      <Recommendation user={currUser} />
+      <div className="bg-neutral">
+        <div className="flex w-full component-preview p-4 items-center justify-center gap-2">
+          <select
+            className="w-full max-w-xs bg-slate-50"
+            name="users"
+            id="users"
+            value={currUser.id}
+            onChange={handleInputChange}
+          >
+            {users.map((user) => (
+              <option key={user.id} value={user.id}>
+                {user.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <SearchProvider config={config}>
+          <WithSearch
+            mapContextToProps={({ wasSearched }) => ({
+              wasSearched,
+            })}
+          >
+            {({ wasSearched }) => {
+              return (
+                <div className="flex justify-center items-center">
+                  <ErrorBoundary>
+                    <Layout
+                      className="bg-blue-500"
+                      header={<SearchBox debounceLength={0} />}
+                      bodyContent={
+                        <Results
+                          shouldTrackClickThrough
+                          clickThroughTags={[currUser?.id ?? 'no-id']}
+                          resultView={({ result, onClickLink }) => {
+                            return (
+                              <div className="card p-4 shadow-xl">
+                                <div>
+                                  <h4 className="font-bold text-slate-900 text-xl">
+                                    {result?.title?.raw}
+                                  </h4>
+                                  <div>{result?.extract?.raw}</div>
+                                </div>
+                                <div>
+                                  {result?.cast?.raw.length ? (
+                                    <div>
+                                      Cast: {result.cast.raw.join(', ')}
+                                    </div>
+                                  ) : null}
+                                </div>
+                                <div>
+                                  {result?.genres?.raw.map((genre: string) => (
+                                    <span key={genre}>{genre} </span>
+                                  ))}
+                                </div>
+                                <div>Release Year: {result?.year?.raw}</div>
+                                <div>Score: {result?._meta.score}</div>
+                                <button
+                                  className="btn"
+                                  onClick={() => {
+                                    setCurrUser((prevState) => ({
+                                      ...prevState,
+                                      favorites: result?.title?.raw,
+                                    }))
+                                    onClickLink()
+                                  }}
+                                >
+                                  Like
+                                </button>
+                              </div>
+                            )
+                          }}
+                        />
+                      }
+                      bodyHeader={
+                        <React.Fragment>
+                          {wasSearched && <PagingInfo />}
+                          {wasSearched && <ResultsPerPage />}
+                        </React.Fragment>
+                      }
+                      bodyFooter={<Paging />}
+                    />
+                  </ErrorBoundary>
+                </div>
+              )
+            }}
+          </WithSearch>
+        </SearchProvider>
       </div>
-      <SearchProvider config={config}>
-        <WithSearch
-          mapContextToProps={({ wasSearched }) => ({
-            wasSearched,
-          })}
-        >
-          {({ wasSearched }) => {
-            return (
-              <div className="flex justify-center items-center">
-                <ErrorBoundary>
-                  <Layout
-                    className="bg-blue-500"
-                    header={<SearchBox debounceLength={0} />}
-                    bodyContent={
-                      <Results
-                        shouldTrackClickThrough
-                        clickThroughTags={[currUser?.id ?? 'no-id']}
-                        resultView={({ result, onClickLink }) => {
-                          return (
-                            <div className="card p-4 shadow-xl">
-                              <div>
-                                <h4 className="font-bold text-slate-900 text-xl">
-                                  {result?.title?.raw}
-                                </h4>
-                                <div>{result?.extract?.raw}</div>
-                              </div>
-                              <div>
-                                {result?.cast?.raw.length ? (
-                                  <div>Cast: {result.cast.raw.join(', ')}</div>
-                                ) : null}
-                              </div>
-                              <div>
-                                {result?.genres?.raw.map((genre: string) => (
-                                  <span key={genre}>{genre} </span>
-                                ))}
-                              </div>
-                              <div>Release Year: {result?.year?.raw}</div>
-                              <div>Score: {result?._meta.score}</div>
-                              <button className="btn" onClick={onClickLink}>
-                                Like
-                              </button>
-                            </div>
-                          )
-                        }}
-                      />
-                    }
-                    bodyHeader={
-                      <React.Fragment>
-                        {wasSearched && <PagingInfo />}
-                        {wasSearched && <ResultsPerPage />}
-                      </React.Fragment>
-                    }
-                    bodyFooter={<Paging />}
-                  />
-                </ErrorBoundary>
-              </div>
-            )
-          }}
-        </WithSearch>
-      </SearchProvider>
-    </div>
+    </>
   )
 }
 

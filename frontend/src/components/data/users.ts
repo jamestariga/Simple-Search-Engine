@@ -5,7 +5,7 @@ export default [
     username: 'no-id',
     gender: 'N/A',
     country: 'N/A',
-    favorites: ['N/A'],
+    favorites: '',
   },
   {
     id: '1',
@@ -13,7 +13,7 @@ export default [
     username: 'johnDoe',
     gender: 'Male',
     country: 'USA',
-    favorites: ['Barbie: A Fashion Fairytale'],
+    favorites: 'Barbie: A Fashion Fairytale',
   },
   {
     id: '2',
@@ -21,7 +21,7 @@ export default [
     username: 'janedoe',
     gender: 'Female',
     country: 'CAN',
-    favorites: [],
+    favorites: 'Phineas and Ferb the Movie: Across the 2nd Dimension',
   },
   {
     id: '3',
@@ -29,6 +29,6 @@ export default [
     username: 'johnsmith',
     gender: 'Male',
     country: 'CN',
-    favorites: [],
+    favorites: 'Elysium',
   },
 ]
