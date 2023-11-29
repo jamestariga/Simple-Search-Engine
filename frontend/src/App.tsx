@@ -152,49 +152,54 @@ const App = () => {
   }
 
   return (
-    <>
-      <Recommendation {...currUser} />
-      <div className="bg-neutral">
-        <div className="flex w-full component-preview p-4 items-center justify-center gap-2">
-          <select
-            className="w-full max-w-xs bg-slate-50"
-            name="users"
-            id="users"
-            value={currUser.id}
-            onChange={handleInputChange}
-          >
-            {users.map((user) => (
-              <option key={user.id} value={user.id}>
-                {user.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <SearchProvider config={config}>
-          <WithSearch
-            mapContextToProps={({ wasSearched }) => ({
-              wasSearched,
-            })}
-          >
-            {({ wasSearched }) => {
-              return (
-                <div className="flex justify-center items-center">
-                  <ErrorBoundary>
-                    <Layout
-                      className="bg-blue-500"
-                      header={<SearchBox debounceLength={0} />}
-                      bodyContent={
+    <div className="bg-neutral">
+      <div className="flex w-full component-preview p-4 items-center justify-center gap-2">
+        <select
+          className="w-full max-w-xs bg-slate-50 text-black"
+          name="users"
+          id="users"
+          value={currUser.id}
+          onChange={handleInputChange}
+        >
+          {users.map((user) => (
+            <option key={user.id} value={user.id}>
+              {user.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <SearchProvider config={config}>
+        <WithSearch
+          mapContextToProps={({ wasSearched }) => ({
+            wasSearched,
+          })}
+        >
+          {({ wasSearched }) => {
+            return (
+              <div className="flex justify-center items-center">
+                <ErrorBoundary>
+                  <Layout
+                    className="bg-blue-500"
+                    header={<SearchBox debounceLength={0} />}
+                    bodyContent={
+                      <>
+                        {currUser.id !== 'no-id' ? (
+                          <Recommendation {...currUser} />
+                        ) : null}
                         <Results
                           shouldTrackClickThrough
                           clickThroughTags={[currUser?.id ?? 'no-id']}
                           resultView={({ result, onClickLink }) => {
                             return (
-                              <div className="card p-4 shadow-xl">
+                              <div className="card p-4 shadow-xl text-gray-500">
                                 <div>
                                   <h4 className="font-bold text-slate-900 text-xl">
                                     {result?.title?.raw}
                                   </h4>
-                                  <div>{result?.extract?.raw}</div>
+                                  <div>
+                                    {result?.extract?.raw.substring(0, 250)} ...
+                                  </div>
                                 </div>
                                 <div>
                                   {result?.cast?.raw.length ? (
@@ -211,7 +216,7 @@ const App = () => {
                                 <div>Release Year: {result?.year?.raw}</div>
                                 <div>Score: {result?._meta.score}</div>
                                 <button
-                                  className="btn"
+                                  className="btn text-white bg-blue-500"
                                   onClick={() => {
                                     setCurrUser((prevState) => ({
                                       ...prevState,
@@ -226,23 +231,23 @@ const App = () => {
                             )
                           }}
                         />
-                      }
-                      bodyHeader={
-                        <React.Fragment>
-                          {wasSearched && <PagingInfo />}
-                          {wasSearched && <ResultsPerPage />}
-                        </React.Fragment>
-                      }
-                      bodyFooter={<Paging />}
-                    />
-                  </ErrorBoundary>
-                </div>
-              )
-            }}
-          </WithSearch>
-        </SearchProvider>
-      </div>
-    </>
+                      </>
+                    }
+                    bodyHeader={
+                      <React.Fragment>
+                        {wasSearched && <PagingInfo />}
+                        {wasSearched && <ResultsPerPage />}
+                      </React.Fragment>
+                    }
+                    bodyFooter={<Paging />}
+                  />
+                </ErrorBoundary>
+              </div>
+            )
+          }}
+        </WithSearch>
+      </SearchProvider>
+    </div>
   )
 }
 
