@@ -13,6 +13,7 @@ import {
 import { Layout } from '@elastic/react-search-ui-views'
 import '@elastic/react-search-ui-views/lib/styles/styles.css'
 import { SearchDriverOptions } from '@elastic/search-ui'
+import { User, Boosts, BoostsQuery } from './types/types'
 import users from './components/data/users'
 import Recommendation from './components/Recommendation/Recommendation'
 
@@ -24,24 +25,6 @@ const connector = new AppSearchAPIConnector({
 })
 
 const API_ADDRESS = 'http://localhost:9999/api'
-
-type User = {
-  id: string
-  name: string
-  username: string
-  gender: string
-  country: string
-  favorites: string
-}
-
-type Boosts = {
-  type: string
-  value: string[]
-  operation: string
-  factor: number
-}[]
-
-type BoostsQuery = Record<string, Boosts>
 
 const defaultConfig: SearchDriverOptions = {
   alwaysSearchOnInitialLoad: true,
@@ -149,11 +132,6 @@ const App = () => {
   }, [userPreferences, currUser])
 
   useEffect(() => {
-    console.log('config', config)
-  }, [config])
-
-  useEffect(() => {
-    console.log('fired', currUser)
     if (currUser) {
       fetchUserPreferences(currUser)
         .then((res) => {
@@ -175,7 +153,7 @@ const App = () => {
 
   return (
     <>
-      <Recommendation user={currUser} />
+      <Recommendation {...currUser} />
       <div className="bg-neutral">
         <div className="flex w-full component-preview p-4 items-center justify-center gap-2">
           <select

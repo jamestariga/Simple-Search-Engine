@@ -1,17 +1,12 @@
 import { useState, useEffect } from 'react'
-
-type User = {
-  id: string
-  name: string
-  username: string
-  gender: string
-  country: string
-  favorites: string
-}
+import Card from './Card/'
+import { User } from '@/types/types'
 
 const API_ADDRESS = 'http://localhost:9999/api'
 
-const Recommendation = ({ user }: { user: User }) => {
+const Recommendation = (props: User) => {
+  const { favorites, name, id } = props
+
   const [recommendations, setRecommendations] = useState<{ data: any[] }>({
     data: [],
   })
@@ -22,26 +17,30 @@ const Recommendation = ({ user }: { user: User }) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ favorites: user.favorites }),
+      body: JSON.stringify({ favorites: favorites }),
     })
       .then((res) => res.json())
       .then((data) => {
         setRecommendations(data)
       })
-  }, [user.id, user.favorites])
-
-  console.log(recommendations)
+  }, [id, favorites])
 
   return (
     <>
-      <div>
-        <h2>Recommendations for {user.name}</h2>
-        <p>Based on your favorites, we recommend the following movies:</p>
-        <div>
-          {recommendations?.data?.map((recommendation) => (
-            <div key={recommendation._source.title}>
-              {recommendation._source.title}
-            </div>
+      <div className="p-4">
+        <div className="flex flex-col">
+          <h2 className="font-bold text-xl">Recommendations for {name}</h2>
+          <p className="font-bold text-lg">
+            Based on your favorites, we recommend the following movies:
+          </p>
+        </div>
+        <div className="carousel w-full">
+          {recommendations?.data?.map((recommendation, id) => (
+            <Card
+              key={id}
+              title={recommendation._source.title}
+              extract={recommendation._source.extract}
+            />
           ))}
         </div>
       </div>
