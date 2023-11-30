@@ -19,4 +19,5 @@ export type BoostsQuery = Record<string, Boosts>
 export type CardProps = {
   title: string
   extract: string
+  id: number
 }

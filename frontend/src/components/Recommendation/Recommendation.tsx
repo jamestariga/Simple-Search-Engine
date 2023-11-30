@@ -32,10 +32,11 @@ const Recommendation = (props: User) => {
           Based on your favorites, we recommend the following movies:
         </p>
       </div>
-      <div className="flex justify-start align-top">
+      <div className="carousel w-full">
         {recommendations?.data?.map((recommendation, id) => (
           <Card
             key={id}
+            id={id}
             title={recommendation._source.title}
             extract={recommendation._source.extract}
           />
