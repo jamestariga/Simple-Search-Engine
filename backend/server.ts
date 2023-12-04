@@ -38,34 +38,36 @@ app.post('/api/user/preferences', async (req, res) => {
   })
 
   const docIds = response.results.map((res) => res.document_id)
+  let formattedResponse: any[] = []
+  if (docIds.length > 0) {
+    const documentsResponse = await client.app.getDocuments({
+      engine_name: 'movies-engine',
+      documentIds: docIds,
+    })
 
-  const documentsResponse = await client.app.getDocuments({
-    engine_name: 'movies-engine',
-    documentIds: docIds,
-  })
+    if (!documentsResponse) {
+      throw new Error('No documents found')
+    }
 
-  if (!documentsResponse) {
-    throw new Error('No documents found')
+    console.log(documentsResponse)
+
+    formattedResponse = response.results.map((res) => {
+      const foundDocument = documentsResponse.find(
+        (doc) => doc?.id === res.document_id
+      )
+
+      if (!foundDocument) {
+        throw new Error('No document found')
+      }
+
+      return {
+        ...res,
+        title: foundDocument.title,
+        cast: foundDocument.cast,
+        genres: foundDocument.genres,
+      }
+    })
   }
-
-  console.log(documentsResponse)
-
-  const formattedResponse = response.results.map((res) => {
-    const foundDocument = documentsResponse.find(
-      (doc) => doc?.id === res.document_id
-    )
-
-    if (!foundDocument) {
-      throw new Error('No document found')
-    }
-
-    return {
-      ...res,
-      title: foundDocument.title,
-      cast: foundDocument.cast,
-      genres: foundDocument.genres,
-    }
-  })
 
   res.status(200).json({ body: { results: formattedResponse } })
 })
