@@ -89,23 +89,31 @@ const App = () => {
     const genresBoosts: Boosts = []
     if (currUser && userPreferences) {
       for (const fav of userPreferences.favorites) {
-        titleBoosts.push({
-          type: 'value',
-          value: [fav.title],
-          operation: 'multiply',
-          factor: fav.clicks * 10,
-        })
+        if (fav.title !== '') {
+          titleBoosts.push({
+            type: 'value',
+            value: [fav.title],
+            operation: 'multiply',
+            factor: fav.clicks * 10,
+          })
+        }
 
-        castsBoosts.push({
-          type: 'value',
-          value: [...fav.cast],
-          operation: 'multiply',
-          factor: fav.clicks * 10,
-        })
+        const filteredCast = fav.cast.filter((cast) => cast !== '')
+
+        if (filteredCast.length > 0) {
+          castsBoosts.push({
+            type: 'value',
+            value: [...filteredCast],
+            operation: 'multiply',
+            factor: fav.clicks * 10,
+          })
+        }
+
+        const filteredGenres = fav.genres.filter((genre) => genre !== '')
 
         genresBoosts.push({
           type: 'value',
-          value: [...fav.genres],
+          value: [...filteredGenres],
           operation: 'multiply',
           factor: fav.clicks * 10,
         })
